@@ -1,0 +1,113 @@
+# =====================================================================
+# GoalVault application configuration
+# =====================================================================
+# Spring Boot picks this file up from src/main/resources automatically.
+# YAML is hierarchical; each nested key becomes a dotted property (e.g. spring.datasource.url).
+
+server:
+  # Embedded Tomcat port. Change with --server.port=xxxx on the command line if needed.
+  port: 8083
+
+spring:
+  application:
+    name: goalvault
+  # Default profile is dev when nothing is set on the command line.
+  # Override with:  --spring.profiles.active=prod
+  profiles:
+    default: dev
+
+  # ---------------- Datasource (H2 in-memory) ----------------
+  # Note: we'll switch this to Postgres later. Keeping H2 for fast local learning.
+  datasource:
+    # jdbc:h2:mem:<name> => in-memory DB, wiped on shutdown.
+    # DB_CLOSE_DELAY=-1 keeps the DB alive as long as the JVM is up (across all connections).
+    url: jdbc:h2:mem:goalvault;DB_CLOSE_DELAY=-1;MODE=LEGACY
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+
+  # ---------------- JPA / Hibernate ----------------
+  jpa:
+    hibernate:
+      # create-drop = create schema on startup, drop on shutdown. Great for learning.
+      ddl-auto: create-drop
+    # Set show-sql=true if you want to see every SQL statement in the console.
+    # Off by default so the seeder (150 matches + 300 reviews) doesn't drown the console.
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: true
+    open-in-view: false  # Best-practice: avoid Open-Session-In-View anti-pattern.
+
+  # ---------------- H2 Console ----------------
+  # Visit http://localhost:8083/h2-console  (JDBC URL: jdbc:h2:mem:goalvault)
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+
+# ---------------- GoalVault: app metadata + rate-limit ----------------
+# Bound to AppMetadata (@ConfigurationProperties prefix=goalvault) and
+# RateLimitProperties (@ConfigurationProperties prefix=goalvault.rate-limit).
+goalvault:
+  name: GoalVault
+  description: Learning-focused Spring Boot football stats API
+  default-page-size: 20
+  rate-limit:
+    # Master switch — feature-flagged via @ConditionalOnProperty on the RateLimitInterceptor bean.
+    # Setting this to false makes the interceptor bean disappear entirely at startup.
+    enabled: true
+    requests-per-minute: 120
+
+# ---------------- Actuator ----------------
+# Enabled endpoints. Each entry below documents WHY it matters for a real debugging session:
+#   health   — Liveness/readiness at a glance; wired into k8s probes, load balancers.
+#   info     — Human-readable identity: app name, version, description. Great for "which build is this?"
+#   metrics  — Micrometer counters/gauges: JVM, HTTP, cache, DB pool. Root of any perf investigation.
+#   beans    — Full Spring bean graph. Answers "is my custom bean actually being wired?"
+#   mappings — Every registered request path -> handler. Answers "why is my URL 404-ing?"
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,beans,mappings
+  endpoint:
+    health:
+      show-details: always
+info:
+  app:
+    name: GoalVault
+    description: Learning-focused Spring Boot football stats API
+    version: 1.0.0-LEARN
+
+# ---------------- Logging ----------------
+logging:
+  level:
+    root: INFO
+    com.spring.learn.boot: INFO
+    # Change to DEBUG if you want to see SQL statements. Keep INFO for normal use.
+    org.hibernate.SQL: INFO
+
+---
+# ============= dev profile =============
+spring:
+  config:
+    activate:
+      on-profile: dev
+# Dev-only overrides could go here (e.g., verbose logging). Kept minimal on purpose.
+
+---
+# ============= prod profile =============
+spring:
+  config:
+    activate:
+      on-profile: prod
+# In prod we don't want the H2 console open.
+  h2:
+    console:
+      enabled: false
+logging:
+  level:
+    root: WARN
+    com.spring.learn.boot: INFO
+
