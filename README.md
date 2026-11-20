@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # GoalVault
 
 GoalVault is a learning project built with **Spring Boot** (a popular Java framework for building web applications and APIs). You don't need any prior Spring experience to understand this document — it starts from the basics and gets progressively more technical.
@@ -414,3 +415,9 @@ com.spring.learn.boot
     │   └── impl/      — Service implementations (Team/Player/Coach/Match + IdempotencyService)
     └── validation/    — Custom @ValidPosition constraint + validator
 ```
+=======
+# FootballGoalVault
+A Spring Boot Project Covering almost Spring Boot Annotations
+
+
+>>>>>>> 2539fbefdc17e377a0a3f4450e73f16f5d07e95f
