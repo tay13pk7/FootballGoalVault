@@ -20,19 +20,19 @@ import org.springframework.stereotype.Service;
 @Service
 public class NotificationService {
 
-    private static final Logger log = LoggerFactory.getLogger(NotificationService.class);
+    private static final Logger logNotifciation = LoggerFactory.getLogger(NotificationService.class);
 
     @Async
     public void sendMatchNotification(Long matchId) {
-        log.info("[async] Fan notification job started for match {} on thread {}",
+        logNotifciation.info("[async] Fan notification job started for match {} on thread {}",
                 matchId, Thread.currentThread().getName());
         try {
             Thread.sleep(2000);
         } catch (InterruptedException ie) {
             Thread.currentThread().interrupt();
-            log.warn("[async] Notification interrupted for match {}", matchId);
+            logNotifciation.warn("[async] Notification interrupted for match {}", matchId);
             return;
         }
-        log.info("[async] Fan notification job finished for match {}", matchId);
+        logNotifciation.info("[async] Fan notification job finished for match {}", matchId);
     }
 }
